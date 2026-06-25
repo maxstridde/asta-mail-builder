@@ -4,6 +4,8 @@ A small browser-based tool for writing AStA Uni Bonn newsletter content in Markd
 
 Live app: deployed automatically to GitHub Pages on every push to `main`.
 
+![Editor demo](social-preview/assets/editor-demo.gif)
+
 ## Usage
 
 1. Fill in the German and English content side by side, section by section: Greeting (incl. title), Introduction, Table of Contents, Main Text, Final Greeting, and Footer. Markdown is supported in the rich-text fields.
@@ -38,12 +40,18 @@ Pushing to `main` triggers the GitHub Actions workflow (`.github/workflows/deplo
 
 First-time setup on the repo (one-time, manual — can't be scripted):
 
-1. **Settings → Pages** → set **Source** to **GitHub Actions** (or to the `gh-pages` branch the workflow publishes, depending on Pages mode).
+1. **Settings → Pages → Build and deployment → Source** → set to **Deploy from a branch**, then pick branch **`gh-pages`** (created automatically by the workflow on first run), folder **/ (root)**.
 2. **Settings → Actions → General → Workflow permissions** → enable **Read and write permissions** so the default `GITHUB_TOKEN` can publish (required by `peaceiris/actions-gh-pages`). No additional secrets are needed.
 
 ## Configuration
 
 The attribution note at the bottom of the page (creation date, author, license link, contact email) is **not** hardcoded in source. Edit the four `define` constants in `vite.config.ts` — `__APP_CREATED__`, `__APP_AUTHOR__`, `__APP_CONTACT_EMAIL__`, `__APP_LICENSE_URL__` — to update it; no app logic changes required.
+
+## Social preview
+
+![OG preview](social-preview/asta-og.png)
+
+This image is also uploaded as the repo's social preview card (**Settings → General → Social preview**), shown when the repo or live app link is shared on GitHub, Slack, etc. Regenerate it with `social-preview/og-asta.sh`; see `social-preview/README.md` for the full image-tooling docs.
 
 ## Stack
 
