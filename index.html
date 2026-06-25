@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AStA Mail Builder</title>
+    <script type="module" crossorigin src="/asta-mail-builder/assets/index-tq2g6pHr.js"></script>
+    <link rel="stylesheet" crossorigin href="/asta-mail-builder/assets/index-DssuS49Y.css">
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <h1>AStA Uni Bonn — Newsletter Mail Builder</h1>
+      </header>
+
+      <div class="layout">
+        <div class="panel panel-left">
+          <div class="button-row">
+            <button id="copy-html-top" type="button">Copy HTML</button>
+            <button id="export-html-top" type="button">Export .html</button>
+            <button id="reset-all-top" type="button" class="danger">Reset / Clear all</button>
+          </div>
+
+          <div class="md-instructions">
+            <p>Use only <strong>H2 (##)</strong> and <strong>H3 (###)</strong> headings — H1 is reserved for the newsletter title.</p>
+            <p>Links: <code>[link text](https://example.com)</code></p>
+          </div>
+
+          <div class="button-row">
+            <button id="toggle-english" type="button">English: On</button>
+            <button id="export-draft" type="button">Export Draft</button>
+            <button id="import-draft" type="button">Import Draft</button>
+          </div>
+          <input id="import-draft-file" type="file" accept="application/json" hidden />
+          <p id="draft-feedback" class="draft-feedback" hidden></p>
+
+          <details class="section greeting-section">
+            <summary>Greeting</summary>
+
+            <div class="lang-pair">
+              <label class="lang-label">DE — Title</label>
+              <input id="de-title" type="text" value="Neuigkeiten vom AStA" />
+            </div>
+            <div class="lang-pair english-only">
+              <label class="lang-label">EN — Title</label>
+              <input id="en-title" type="text" value="News from the AStA" />
+            </div>
+            <div class="lang-pair english-only">
+              <label for="english-notice">English notice (shown above the German title)</label>
+              <input id="english-notice" type="text" value="english version below" />
+            </div>
+
+            <div class="lang-pair">
+              <label class="lang-label">DE — Greeting</label>
+              <label for="de-greeting-1">Greeting (with name)</label>
+              <input id="de-greeting-1" type="text" value="Hallo [Sympa Name]," />
+              <label for="de-greeting-2">Greeting (fallback, no name)</label>
+              <input id="de-greeting-2" type="text" value="Hallo!" />
+            </div>
+
+            <div class="lang-pair english-only">
+              <label class="lang-label">EN — Greeting</label>
+              <label for="en-greeting-1">Greeting (with name)</label>
+              <input id="en-greeting-1" type="text" value="Hello [Sympa Name]," />
+              <label for="en-greeting-2">Greeting (fallback, no name)</label>
+              <input id="en-greeting-2" type="text" value="Hello!" />
+            </div>
+          </details>
+
+          <section class="section">
+            <h2>Introduction</h2>
+            <div class="lang-pair">
+              <label class="lang-label">DE — Introduction</label>
+              <textarea id="de-intro"></textarea>
+            </div>
+            <div class="lang-pair english-only">
+              <label class="lang-label">EN — Introduction</label>
+              <textarea id="en-intro"></textarea>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>Table of Contents</h2>
+            <div class="lang-pair">
+              <label class="lang-label">DE — Table of Contents</label>
+              <input id="de-toc-title" type="text" value="Themen dieser Ausgabe" />
+              <div id="de-toc-list" class="toc-list"></div>
+              <button id="de-toc-add" type="button" class="toc-add">+ Add item</button>
+            </div>
+            <div class="lang-pair english-only">
+              <label class="lang-label">EN — Table of Contents</label>
+              <input id="en-toc-title" type="text" value="Topics of this issue" />
+              <div id="en-toc-list" class="toc-list"></div>
+              <button id="en-toc-add" type="button" class="toc-add">+ Add item</button>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>Main Text</h2>
+            <div class="lang-pair">
+              <label class="lang-label">DE — Main Text</label>
+              <textarea id="de-main"></textarea>
+            </div>
+            <div class="lang-pair english-only">
+              <label class="lang-label">EN — Main Text</label>
+              <textarea id="en-main"></textarea>
+            </div>
+          </section>
+
+          <details class="section">
+            <summary>Final Greeting</summary>
+            <div class="lang-pair">
+              <label class="lang-label">DE — Final Greeting</label>
+              <input id="de-final-greeting-1" type="text" value="Mit besten Grüßen" />
+              <input id="de-final-greeting-2" type="text" value="euer AStA-Öffentlichkeitsreferat" />
+            </div>
+            <div class="lang-pair english-only">
+              <label class="lang-label">EN — Final Greeting</label>
+              <input id="en-final-greeting-1" type="text" value="Best Wishes" />
+              <input id="en-final-greeting-2" type="text" value="your AStA-Öffentlichkeitsreferat" />
+            </div>
+          </details>
+
+          <details class="section">
+            <summary>Footer</summary>
+            <div class="lang-pair">
+              <label for="footer-address">Address</label>
+              <textarea id="footer-address" rows="3">AStA Universität Bonn
+Endenicher Allee 19 (Container), 53115 Bonn</textarea>
+            </div>
+            <div class="lang-pair">
+              <label for="footer-email-text">Contact email — link text</label>
+              <input id="footer-email-text" type="text" value="oeff@asta.uni-bonn.de" />
+              <label for="footer-email-href">Contact email — mailto address</label>
+              <input id="footer-email-href" type="text" value="mailto:oeff@asta.uni-bonn.de" />
+            </div>
+            <div class="lang-pair">
+              <label for="footer-mailinglist-text">Mailing list link — text</label>
+              <input id="footer-mailinglist-text" type="text" value="Link zu Mailinglisten-Homepage" />
+              <label for="footer-mailinglist-href">Mailing list link — URL</label>
+              <input id="footer-mailinglist-href" type="text" value="https://listen.uni-bonn.de/wws/info/asta-newsletter" />
+            </div>
+            <div class="lang-pair">
+              <label for="footer-unsubscribe-text">Unsubscribe — lead text</label>
+              <input id="footer-unsubscribe-text" type="text" value="Zum Abmelden sende eine leere Mail an" />
+              <label for="footer-unsubscribe-link-text">Unsubscribe — link text</label>
+              <input id="footer-unsubscribe-link-text" type="text" value="asta-newsletter-unsubscribe@listen.uni-bonn.de" />
+              <label for="footer-unsubscribe-link-href">Unsubscribe — mailto address</label>
+              <input id="footer-unsubscribe-link-href" type="text" value="mailto:asta-newsletter-unsubscribe@listen.uni-bonn.de" />
+            </div>
+          </details>
+
+          <div class="button-row">
+            <button id="copy-html-bottom" type="button">Copy HTML</button>
+            <button id="export-html-bottom" type="button">Export .html</button>
+          </div>
+
+          <div class="button-row">
+            <button id="reset-all" type="button" class="danger">Reset / Clear all</button>
+          </div>
+        </div>
+
+        <div class="panel panel-right">
+          <iframe id="preview" title="Email preview"></iframe>
+        </div>
+      </div>
+
+      <footer class="site-footer">
+        <p id="site-footer-note"></p>
+      </footer>
+    </div>
+  </body>
+</html>
