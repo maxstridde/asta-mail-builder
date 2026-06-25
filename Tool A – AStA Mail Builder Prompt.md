@@ -51,54 +51,79 @@ On narrow screens (< 900px), stack the columns vertically.
 
 ## Input fields (left panel)
 
-All text fields accept **Markdown** input. Update the preview on every `input` event (debounce 200ms if performance is a concern).
+All text fields accept **Markdown** input via EasyMDE. Update the preview on every EasyMDE `change` event, debounced 200ms.
 
-| Field | Description |
-|---|---|
-| **Table of Contents items** | A dynamic list: start with 8 text inputs, add a "+ Add item" / "– Remove" button. Items map to `<li>` entries in both ToC boxes. |
-| **DE – Introduction** | Markdown. Short intro paragraph, German. |
-| **DE – Main Text** | Markdown. The bulk of the German content. |
-| **EN – Introduction** | Markdown. Short intro paragraph, English. |
-| **EN – Main Text** | Markdown. The bulk of the English content. |
+**Design rule: always pair DE and EN fields for the same content type together.** Each section label appears once, with DE above EN. This means the left panel is divided into these grouped sections (top to bottom):
 
- (collapsed):
-- DE Greeting override (default: `Hallo [Sympa Name],` and `Hallo!`)
-- EN Greeting override (default: `Hello [Sympa Name],` and `Hello!`)
+1. **Greeting** — collapsed `<details>` block
+   - DE greeting text (plain text input, default: `Hallo [Sympa Name],` / `Hallo!`)
+   - EN greeting text (plain text input, default: `Hello [Sympa Name],` / `Hello!`)
+
+2. **Introduction** — paired section
+   - DE Introduction (EasyMDE, short intro paragraph, German)
+   - EN Introduction (EasyMDE, short intro paragraph, English)
+
+3. **Main Text** — paired section
+   - DE Main Text (EasyMDE, bulk German content)
+   - EN Main Text (EasyMDE, bulk English content)
+
+4. **Table of Contents** — paired section
+   - DE ToC items: dynamic list of plain text inputs, start with 8 rows, "+ Add" / "− Remove" button; maps to `<li>` entries in the German ToC `<ol>`
+   - EN ToC items: same structure, separate inputs for English translations; maps to `<li>` entries in the English ToC `<ol>`
 
 ---
 
 ## Template insertion
 
-The AStA HTML email template is embedded as a JavaScript template literal string (copy the full HTML from `ASta Mail Template.html`). Replace the `<!-- EDIT -->` comment placeholders with the processed field values.
+The AStA HTML email template (`ASta Mail Template.html`) is embedded as a JavaScript template literal string in `index.html`. Content is injected by replacing the comment-delimited sections below.
 
-The template has these insertion points (by HTML comment):
-- `<!-- EDIT Introduction -->` (German)
-- `<!-- EDIT -->` after it (German main content)
-- `<!-- EDIT ordered List / unordered List of table of contents -->` (German ToC)
-- Same three slots repeated for the English section
+There are **8 injection points** in order of appearance in the template:
+
+| # | Unique boundary comment(s) | What gets replaced | Source field |
+|---|---|---|---|
+| 1 | `<!-- EDIT optional Greeting -->` … `<!-- EDIT Introduction -->` | The entire `<p>[% IF user.gecos -%] Hallo … [%~ END -%]</p>` tag | DE Greeting (plain text) |
+| 2 | `<!-- EDIT Introduction -->` … `<!-- Introduction End -->` | The `<!-- EDIT -->` placeholder inside | DE Introduction (Markdown) |
+| 3 | `<!-- EDIT ordered List / unordered List of table of contents -->` … `<!-- End of List-->` (1st occurrence) | The existing `<ol>…</ol>` | DE ToC items → `<ol><li>…</li></ol>` |
+| 4 | `<!-- EDIT Main Content -->` … `<!-- Main Content End-->` (1st occurrence) | The `<!-- EDIT -->` placeholder inside | DE Main Text (Markdown) |
+| 5 | `<!-- EDIT optional Greeting English  -->` … `<!-- EDIT Introduction  -->` | The entire `<p>[% IF user.gecos -%] Hello … [%~ END -%]</p>` tag | EN Greeting (plain text) |
+| 6 | `<!-- EDIT Introduction  -->` … `<!-- Introduction End   -->` | The `<!-- EDIT -->` placeholder inside | EN Introduction (Markdown) |
+| 7 | `<!-- EDIT ordered List / unordered List of table of contents   -->` … `<!-- End of List-->` (2nd occurrence) | The existing `<ol>…</ol>` | EN ToC items → `<ol><li>…</li></ol>` |
+| 8 | `<!-- EDIT Main Content -->` … `<!-- Main Content End-->` (2nd occurrence) | The `<!-- EDIT -->` placeholder inside | EN Main Text (Markdown) |
+
+**Implementation note:** Use a helper `replaceSection(html, startComment, endComment, newContent)` that finds the first (or nth) occurrence of the region between `startComment` and `endComment` and replaces its inner content. Process all 8 replacements sequentially on the template string, top to bottom.
 
 ---
 
 ## CSS post-processing (the only real logic)
 
-After converting each Markdown field with `marked.parse()`, run a simple string transformation on the resulting HTML before inserting it into the template:
+After converting each Markdown field with `marked.parse()`, run these string transformations on the resulting HTML before inserting it into the template. The template's `<style>` block already handles these visually, but email clients strip `<style>` blocks, so inline styles are required on dynamically injected content.
 
-1. **Links** — add `style="color:#85152A; text-decoration:none;"` to every `<a` tag that does not already have a `style` attribute.
+1. **Links** — add `style="color:#85152A; text-decoration:none;"` to every `<a` tag.
    ```js
    html.replace(/<a /g, '<a style="color:#85152A; text-decoration:none;" ')
    ```
 
-2. **Ordered lists** — add `style="margin-top:0; padding-left:20px;"` to every `<ol>` tag.
+2. **Ordered lists**
    ```js
    html.replace(/<ol>/g, '<ol style="margin-top:0; padding-left:20px;">')
    ```
 
-3. **Unordered lists** — same for `<ul>`.
+3. **Unordered lists**
    ```js
    html.replace(/<ul>/g, '<ul style="margin-top:0; padding-left:20px;">')
    ```
 
-4. **Headings** Run the colouring on all h2/h3 headings just like the h1 heading which is already styled inline in the template itself.
+4. **h2 headings**
+   ```js
+   html.replace(/<h2>/g, '<h2 style="font-size:24px; color:#85152A; margin-bottom:5px;">')
+   ```
+
+5. **h3 headings**
+   ```js
+   html.replace(/<h3>/g, '<h3 style="font-size:18px; color:#85152A; margin-bottom:5px;">')
+   ```
+
+The h1 and h4 headings in the template already carry inline `style` attributes and are not dynamically injected, so they need no post-processing.
 
 ---
 
