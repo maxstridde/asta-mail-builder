@@ -2,6 +2,9 @@
   --asta-red: #85152a;
   --border: #ddd;
   --bg: #f6f6f6;
+  /* Single source of truth for the fixed header's height. Both the header
+     itself and the layout offset / sticky-preview calc()s derive from this. */
+  --header-height: 48px;
 }
 
 * {
@@ -18,7 +21,15 @@ body {
 .app-header {
   background: var(--asta-red);
   color: #fff;
-  padding: 12px 20px;
+  padding: 0 20px;
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
 }
 
 .app-header h1 {
@@ -30,6 +41,8 @@ body {
   display: flex;
   gap: 16px;
   padding: 16px;
+  /* Offset for the fixed header so content isn't hidden underneath it. */
+  padding-top: calc(var(--header-height) + 16px);
   align-items: flex-start;
 }
 
@@ -54,8 +67,9 @@ body {
   padding: 0;
   overflow: hidden;
   position: sticky;
-  top: 16px;
-  height: calc(100vh - 32px);
+  /* Sit just below the fixed header, and fill the rest of the viewport. */
+  top: calc(var(--header-height) + 16px);
+  height: calc(100vh - var(--header-height) - 32px);
 }
 
 #preview {
@@ -111,6 +125,19 @@ input[type='text'] {
   border: 1px solid var(--border);
   border-radius: 4px;
   font-size: 14px;
+}
+
+/* The footer address is a plain <textarea>; match the text-input styling and
+   let the user grow it vertically. (The four EasyMDE editors are styled by
+   EasyMDE itself, so this only affects the footer address box.) */
+.lang-pair textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
 }
 
 .button-row {
@@ -183,9 +210,61 @@ input[type='text'] {
 @media (max-width: 900px) {
   .layout {
     flex-direction: column;
+    align-items: stretch;
   }
+  /* On narrow screens the preview joins normal page flow and expands to its
+     full content height (set dynamically in main.ts), so the whole email is
+     visible inline with no nested scrollbar. */
   .panel-right {
     position: static;
-    height: 60vh;
+    height: auto;
+    overflow: visible;
   }
+  #preview {
+    height: auto;
+  }
+}
+
+.CodeMirror.heading-warning {
+  outline: 2px solid #e6b800;
+}
+
+.md-instructions {
+  font-size: 13px;
+  color: #555;
+  background: #f9f9f9;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.md-instructions p {
+  margin: 4px 0;
+}
+
+.md-instructions code {
+  background: #eee;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.draft-feedback {
+  margin: 0;
+  font-size: 13px;
+  color: #555;
+}
+
+.draft-feedback.error {
+  color: var(--asta-red);
+}
+
+.site-footer {
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+  padding: 16px;
+}
+
+.site-footer a {
+  color: var(--asta-red);
 }

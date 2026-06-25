@@ -89,37 +89,54 @@ jobs:
 
 ## Page layout
 
-Two-column layout: left panel = all inputs, right panel = live preview iframe. Stack vertically on screens < 900 px.
+Two-column layout: left panel = all inputs, right panel = live preview iframe. Stack vertically on screens < 900 px (the mobile layout sets `align-items: stretch` on `.layout` so panels fill the full width instead of shrinking to content width).
+
+The `.app-header` is `position: fixed` (full width, `z-index: 10`) on all screen sizes; its height comes from the `--header-height` CSS variable (`:root`, currently `48px`), which is the single source of truth feeding both the `.layout` top padding offset and the `.panel-right` sticky `top` / `height` calc()s — change the variable in one place and the header, content offset, and preview height stay in sync. A muted `.site-footer` note sits at the bottom of normal document flow (after `.layout`, not fixed) — see "Site footer note" below.
+
+On wide screens (≥ 900 px) the preview is `position: sticky` and fills the viewport below the fixed header with its own scrollbar. On narrow screens the preview rejoins normal page flow (`position: static; height: auto`) and `updatePreview()` sizes the iframe to its full content height (via the iframe `load` handler, gated on `MOBILE_QUERY.matches`) so the whole email is visible inline with no nested scrollbar.
 
 **Left panel structure (top to bottom):**
-- Copy HTML + Export buttons (top)
-- Greeting section — wrapped in a `<details>` / `<summary>` collapsible element
+- Copy HTML + Export + Reset/Clear-all buttons (top)
+- Markdown instructions block (static, no inputs — H2/H3-only rule, link syntax)
+- English on/off toggle button + Export Draft + Import Draft buttons (one `.button-row`), plus a hidden `<input type="file">` and a transient `#draft-feedback` message line
+- Greeting section (DE/EN Title, English notice, DE/EN Greeting) — wrapped in a `<details>` / `<summary>` collapsible element, collapsed by default
 - Introduction section (DE + EN paired)
+- Table of Contents section (DE + EN paired, incl. editable ToC title)
 - Main Text section (DE + EN paired)
-- Table of Contents section (DE + EN paired)
+- Final Greeting section (DE + EN paired) — `<details>`, collapsed by default
+- Footer section (not language-paired — template renders the footer once) — `<details>`, collapsed by default
 - Copy HTML + Export buttons (bottom)
-- Reset / Clear all button
+- Reset / Clear all button (bottom)
 
-**Pairing rule:** DE and EN fields for the same content type are always grouped together in the same visual section, DE above EN, with a clear DE/EN label on each.
+**Pairing rule:** DE and EN fields for the same content type are always grouped together in the same visual section, DE above EN, with a `DE — <Section>` / `EN — <Section>` label on each (e.g. `DE — Introduction`). Every EN-side element carries the `english-only` class so the toggle can show/hide it in one pass.
 
 ## Input fields
 
 | Field | Widget | Default / notes |
 |---|---|---|
+| DE/EN Title | `<input type="text">` | `Neuigkeiten vom AStA` / `News from the AStA` — the `<h1>` text |
+| English notice | `<input type="text">` | `english version below` — shown above the German title, only when English is enabled |
 | DE Greeting | `<input type="text">` | `Hallo [Sympa Name],` — named-recipient branch (shown when `user.gecos` exists) |
 | DE Greeting fallback | `<input type="text">` | `Hallo!` — fallback branch (shown when no name) |
 | EN Greeting | `<input type="text">` | `Hello [Sympa Name],` |
 | EN Greeting fallback | `<input type="text">` | `Hello!` |
-| DE Introduction | EasyMDE | Empty (blank in template) |
-| EN Introduction | EasyMDE | Empty (blank in template) |
+| DE Introduction | EasyMDE | Defaults to the "find out more on asta-bonn.de / Instagram" blurb as editable Markdown |
+| EN Introduction | EasyMDE | English equivalent of the above |
+| DE/EN ToC title | `<input type="text">` | `Themen dieser Ausgabe` / `Topics of this issue` — the ToC box `<h4>` |
+| DE ToC items | Dynamic list of `<input type="text">`, 3 initial rows | Pre-filled: "item 1" … "item 3" |
+| EN ToC items | Dynamic list of `<input type="text">`, 3 initial rows | Pre-filled: "item 1" … "item 3" |
 | DE Main Text | EasyMDE | Empty (blank in template) |
 | EN Main Text | EasyMDE | Empty (blank in template) |
-| DE ToC items | Dynamic list of `<input type="text">`, 8 initial rows | Pre-filled: "item 1" … "item 8" (matching template defaults) |
-| EN ToC items | Dynamic list of `<input type="text">`, 8 initial rows | Pre-filled: "item 1" … "item 8" (matching template defaults) |
+| DE/EN Final Greeting (2 lines each) | `<input type="text">` × 2 per language | `Mit besten Grüßen` / `euer AStA-Öffentlichkeitsreferat`, `Best Wishes` / `your AStA-Öffentlichkeitsreferat` — plain text, no `<strong>` wrapper |
+| Footer address | `<textarea rows="3">` | `AStA Universität Bonn\nEndenicher Allee 19 (Container), 53115 Bonn` — plain text; `\n` is converted to `<br>` at assembly, not run through Markdown. Styled (`.lang-pair textarea`) to match text inputs with `resize: vertical` and `font-family: inherit` |
+| Footer email text/href | `<input type="text">` × 2 | text `oeff@asta.uni-bonn.de`, href `mailto:oeff@asta.uni-bonn.de` |
+| Footer mailing-list text/href | `<input type="text">` × 2 | text `Link zu Mailinglisten-Homepage`, href `https://listen.uni-bonn.de/wws/info/asta-newsletter` |
+| Footer unsubscribe lead text / link text / link href | `<input type="text">` × 3 | `Zum Abmelden sende eine leere Mail an`, `asta-newsletter-unsubscribe@listen.uni-bonn.de`, `mailto:asta-newsletter-unsubscribe@listen.uni-bonn.de` |
+| English on/off toggle | `<button id="toggle-english">` | Defaults to on; toggling off hides `.english-only` elements and drops the English block (and divider) from assembled output without clearing the underlying field values |
 
 ToC lists: each has an "+ Add item" button and a "− Remove" button per row.
 
-Greeting fields are inside a `<details>` block (collapsed by default).
+EasyMDE editors use a restricted toolbar (`EDITOR_TOOLBAR_OPTIONS` in `src/main.ts`) that omits the `image` and `check-list` buttons — reversible by adding the name back into that array. Each of the 4 editors also runs a debounced (700 ms) per-editor heading check: an H1 (`#`) or H4–H6 (`####`–`######`) anywhere in the content outlines that editor's CodeMirror box yellow via the `heading-warning` class, since only H2/H3 are valid in the email body (H1 is reserved for the title).
 
 ## Greeting logic (Sympa)
 
@@ -139,20 +156,19 @@ Result: `<p>[% IF user.gecos -%] Hallo [% user.gecos %], [%~ ELSE -%] Hallo![%~ 
 
 ## Template injection
 
-`src/template.html` is imported as a raw string via `import templateHtml from './template.html?raw'`. The builder replaces 8 comment-delimited regions sequentially (top to bottom in the template):
+`src/template.html` is imported as a raw string via `import templateHtml from './template.html?raw'`. `assembleHtml()` in `src/main.ts`:
 
-| # | Start boundary | End boundary | Replace target | With |
-|---|---|---|---|---|
-| 1 | `<!-- EDIT optional Greeting -->` | `<!-- EDIT Introduction -->` | entire `<p>[% IF user.gecos …]</p>` DE tag | `buildGreeting(deGreeting1, deGreeting2)` — rebuilt Sympa conditional |
-| 2 | `<!-- EDIT Introduction -->` | `<!-- Introduction End -->` | `<!-- EDIT -->` inside | DE Intro HTML |
-| 3 | `<!-- EDIT ordered List / unordered List of table of contents -->` | `<!-- End of List-->` (1st) | existing `<ol>…</ol>` | DE ToC `<ol><li>…</li></ol>` |
-| 4 | `<!-- EDIT Main Content -->` | `<!-- Main Content End-->` (1st) | `<!-- EDIT -->` inside | DE Body HTML |
-| 5 | `<!-- EDIT optional Greeting English  -->` | `<!-- EDIT Introduction  -->` | entire `<p>[% IF user.gecos …]</p>` EN tag | `buildGreeting(enGreeting1, enGreeting2)` — rebuilt Sympa conditional |
-| 6 | `<!-- EDIT Introduction  -->` | `<!-- Introduction End   -->` | `<!-- EDIT -->` inside | EN Intro HTML |
-| 7 | `<!-- EDIT ordered List / unordered List of table of contents   -->` | `<!-- End of List-->` (2nd) | existing `<ol>…</ol>` | EN ToC `<ol><li>…</li></ol>` |
-| 8 | `<!-- EDIT Main Content -->` | `<!-- Main Content End-->` (2nd) | `<!-- EDIT -->` inside | EN Body HTML |
+1. If English is disabled, strips two regions outright via a plain indexOf/slice (`stripRegion()`), before any other replacement runs:
+   - `<!-- EDIT EnglishNotice -->` … `<!-- EnglishNotice End -->`
+   - `<!-- ENGLISH BLOCK START -->` … `<!-- ENGLISH BLOCK END -->` (wraps the divider bar + the entire English content section, h1 through final greeting)
 
-Use a helper `replaceSection(html: string, startMarker: string, endMarker: string, newContent: string): string` and call it 8 times sequentially. For sections 4 and 8 (both `<!-- EDIT Main Content -->` … `<!-- Main Content End-->`), the second call naturally targets the second occurrence because the first was already replaced.
+   If English is enabled, the EnglishNotice region instead goes through the normal `replaceSection` call below, and every English-only `replaceSection` call runs.
+
+2. Calls `replaceSection(html, startMarker, endMarker, newContent)` once per comment-delimited region, in document order: Title (DE), Greeting (DE), Introduction (DE), ToC title (DE), ToC list (DE), Main Content (DE), Final Greeting 1/2 (DE), then — only when English is enabled — Title (EN), Greeting (EN), Introduction (EN), ToC title (EN), ToC list (EN), Main Content (EN), Final Greeting 1/2 (EN), then the footer fields (address, email text, mailing-list text, unsubscribe text, unsubscribe link text). `replaceSection` finds the literal `<!-- EDIT -->` placeholder (or the existing `<ol>…</ol>` / `<p>[%…]</p>` patterns for ToC lists and greetings) between the two named markers and substitutes it.
+
+3. Calls `replaceToken(html, token, value)` for the three href attributes that can't carry an HTML comment (attribute values aren't valid comment positions): `{{FOOTER_EMAIL_HREF}}`, `{{FOOTER_MAILINGLIST_HREF}}`, `{{FOOTER_UNSUBSCRIBE_HREF}}`. `replaceToken` does a plain `.replace()` since each token string is unique in the template.
+
+Marker naming follows one convention throughout: `<!-- EDIT <Name> -->` … `<!-- EDIT -->` (the actual placeholder) … `<!-- <Name> End -->`. EN-side markers get a distinct name (e.g. `TitleEN`, `TocTitleEN`, `FinalGreetingEN1`) rather than reusing the DE name with trailing whitespace, except for the two markers inherited from the original template (`EDIT optional Greeting English  ` / `EDIT Introduction  `, which do rely on trailing-space disambiguation — don't "clean up" that whitespace, it's load-bearing for `indexOf`).
 
 ## CSS post-processing
 
@@ -179,15 +195,24 @@ previewIframe.srcdoc = assembledHtml;
 
 Preview updates on every EasyMDE `change` event and every `input` event on plain text fields, debounced 200 ms.
 
+Reassigning `srcdoc` rebuilds the whole iframe document and resets its scroll to 0, so `updatePreview()` captures `contentWindow.scrollX/Y` before the swap and restores it via a one-time `load` handler afterwards. Only one such handler is ever attached at a time (`pendingPreviewLoad` is removed before the next is added, and `{ once: true }` self-cleans) to avoid listener buildup across frequent updates. The same `load` handler also does the mobile dynamic-height resize (above), and `MOBILE_QUERY`'s `change` event re-runs `updatePreview()` when crossing the 900 px breakpoint.
+
 ## Buttons
 
 - **Copy HTML** (top + bottom): `navigator.clipboard.writeText(assembledHtml)` → show "Copied!" for 1.5 s
 - **Export .html**: create a `Blob` with `type: 'text/html'`, generate an object URL, click a hidden `<a download="asta-newsletter.html">`
-- **Reset / Clear all**: `confirm()` dialog → clear all EasyMDE instances and plain text inputs, reset ToC rows to 8 × "item 1"…"item 8", remove localStorage
+- **Export Draft** (`export-draft`): serialize `collectState()` to pretty JSON, download as `asta-newsletter-draft.json` (`application/json`). This is the same state shape localStorage uses, exposed as a portable file for backup/sharing — called a "draft" to distinguish it from `template.html`.
+- **Import Draft** (`import-draft`): clicks a hidden `<input type="file" accept="application/json">`; on change, `JSON.parse` the file and `applyState({ ...defaultState(), ...parsed })` (merge-with-defaults safety net), then `updatePreview()`. Parse failures show a transient error in `#draft-feedback` instead of throwing.
+- **Reset / Clear all** (`reset-all-top` and `reset-all`, both wired to the same handler): `confirm()` dialog → clear all EasyMDE instances and plain text inputs, reset ToC rows to `TOC_DEFAULT_COUNT` (3) × "item 1"…"item 3", remove localStorage
+- **English: On/Off** (`toggle-english`): flips `englishEnabled`, toggles `display` on every `.english-only` element, updates its own label, triggers a preview update. Does not clear English field values when turned off.
+
+## Site footer note
+
+A muted `.site-footer` at the bottom of the page (`#site-footer-note`) shows an attribution sentence built in `renderSiteFooterNote()` from four build-time constants injected via Vite's `define` block in `vite.config.ts`: `__APP_CREATED__`, `__APP_AUTHOR__`, `__APP_CONTACT_EMAIL__`, `__APP_LICENSE_URL__` (typed in `src/vite-env.d.ts`). The email becomes a `mailto:` link and the license text an `<a>` to `__APP_LICENSE_URL__`. To update attribution, edit only those four values in `vite.config.ts` — no app-logic change. `index.html` itself is not run through `define`, which is why the note is rendered from `main.ts` rather than templated into the HTML.
 
 ## LocalStorage
 
-Save all field values on every change event (debounced). Key: `asta-mail-builder`. On page load, restore saved values if present and initialize EasyMDE instances with the stored content. If no saved state, initialize with defaults (empty editors, 8 pre-filled ToC rows).
+Save all field values (including `englishEnabled`) on every change event (debounced). Key: `asta-mail-builder`. On page load, restore saved values if present and initialize EasyMDE instances with the stored content. If no saved state, initialize with defaults (empty Main Text editors, prefilled Introduction default text, 3 pre-filled ToC rows per language, English enabled).
 
 ## AStA brand color
 

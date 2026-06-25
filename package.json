@@ -3,6 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "Browser-based builder that turns Markdown into ready-to-send AStA Uni Bonn newsletter HTML emails.",
+  "license": "MIT",
+  "author": "Max Stridde",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxstridde/asta-mail-builder"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
