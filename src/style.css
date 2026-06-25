@@ -239,6 +239,30 @@ input[type='text'] {
   outline: 2px solid #e6b800;
 }
 
+/* Yellow hint shown directly below an editor box whose content breaks the
+   H2/H3-only rule (toggled via [hidden] in main.ts). */
+.heading-warning-hint {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #6b5200;
+  background: #fff8e1;
+  border: 1px solid #e6b800;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+/* When any editor has a heading warning, the copy/export buttons turn yellow
+   to signal the problem before the user ships the email. */
+.button-row button.has-warning {
+  background: #e6b800;
+  border-color: #e6b800;
+  color: #3a2f00;
+}
+
+.button-row button.has-warning:hover {
+  background: #cca400;
+}
+
 .md-instructions {
   font-size: 13px;
   color: #555;

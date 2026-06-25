@@ -136,7 +136,7 @@ On wide screens (≥ 900 px) the preview is `position: sticky` and fills the vie
 
 ToC lists: each has an "+ Add item" button and a "− Remove" button per row.
 
-EasyMDE editors use a restricted toolbar (`EDITOR_TOOLBAR_OPTIONS` in `src/main.ts`) that omits the `image` and `check-list` buttons — reversible by adding the name back into that array. Each of the 4 editors also runs a debounced (700 ms) per-editor heading check: an H1 (`#`) or H4–H6 (`####`–`######`) anywhere in the content outlines that editor's CodeMirror box yellow via the `heading-warning` class, since only H2/H3 are valid in the email body (H1 is reserved for the title).
+EasyMDE editors use a restricted toolbar (`EDITOR_TOOLBAR_OPTIONS` in `src/main.ts`) that omits the `image` and `check-list` buttons — reversible by adding the name back into that array. Each of the 4 editors also runs a debounced (700 ms) per-editor heading check (also run once on initial load, after import, and after reset): an H1 (`#`) or H4–H6 (`####`–`######`) anywhere in the content outlines that editor's CodeMirror box yellow via the `heading-warning` class, since only H2/H3 are valid in the email body (H1 is reserved for the title). When a box is flagged, a yellow `.heading-warning-hint` paragraph (created lazily per editor, kept in a `WeakMap`, toggled via `hidden`) appears directly below it explaining the rule. The set of currently-flagged editors is tracked in `editorsWithWarning`; whenever it's non-empty, all four Copy HTML / Export `.html` buttons get the `has-warning` class (yellow), and clicking any of them first runs `confirmIfHeadingWarning()` — a `confirm()` the user can dismiss to proceed anyway (the warning is advisory; copy/export still work).
 
 ## Greeting logic (Sympa)
 

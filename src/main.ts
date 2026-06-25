@@ -491,12 +491,64 @@ function initEasyMde(elementId: string): EasyMDE {
 const HEADING_DEBOUNCE_MS = 700
 const H1_PATTERN = /^#(?!#)\s/m
 const H4_PLUS_PATTERN = /^#{4,6}\s/m
+const HEADING_HINT_TEXT =
+  'Only H2 (##) and H3 (###) headings are allowed here — please remove the H1 (#) or H4–H6 (####+) heading.'
+const COPY_EXPORT_BUTTON_IDS = [
+  'copy-html-top', 'copy-html-bottom', 'export-html-top', 'export-html-bottom',
+]
+
+// Editors that currently contain an invalid heading. Drives both the yellow
+// copy/export buttons and the ignorable confirm dialog on those buttons.
+const editorsWithWarning = new Set<EasyMDE>()
+
+// One persistent hint element per editor, created lazily on first check and
+// shown/hidden as the warning state changes.
+const headingHints = new WeakMap<EasyMDE, HTMLElement>()
+
+function headingHintFor(mde: EasyMDE): HTMLElement {
+  let hint = headingHints.get(mde)
+  if (hint) return hint
+  hint = document.createElement('p')
+  hint.className = 'heading-warning-hint'
+  hint.textContent = HEADING_HINT_TEXT
+  hint.hidden = true
+  // The CodeMirror wrapper lives inside EasyMDE's container; drop the hint
+  // right after that container so it sits below the editor box.
+  const wrapper = mde.codemirror.getWrapperElement()
+  const container = wrapper.closest('.EasyMDEContainer') ?? wrapper
+  container.parentElement?.insertBefore(hint, container.nextSibling)
+  headingHints.set(mde, hint)
+  return hint
+}
+
+function updateWarningButtons(): void {
+  const hasWarning = editorsWithWarning.size > 0
+  for (const id of COPY_EXPORT_BUTTON_IDS) {
+    $<HTMLButtonElement>(id).classList.toggle('has-warning', hasWarning)
+  }
+}
 
 function checkHeadings(mde: EasyMDE): void {
   const content = mde.value()
   const hasInvalidHeading = H1_PATTERN.test(content) || H4_PLUS_PATTERN.test(content)
   const wrapper = mde.codemirror.getWrapperElement()
   wrapper.classList.toggle('heading-warning', hasInvalidHeading)
+  headingHintFor(mde).hidden = !hasInvalidHeading
+
+  if (hasInvalidHeading) editorsWithWarning.add(mde)
+  else editorsWithWarning.delete(mde)
+  updateWarningButtons()
+}
+
+// Copy/export still work with an invalid heading present, but warn first so the
+// user can knowingly proceed (e.g. the heading is intentional).
+function confirmIfHeadingWarning(): boolean {
+  if (editorsWithWarning.size === 0) return true
+  return confirm(
+    'One or more text boxes contain an invalid heading — only H2 (##) and H3 (###) ' +
+      'are allowed in the email body. The newsletter may not render correctly.\n\n' +
+      'Continue anyway?'
+  )
 }
 
 function showCopyFeedback(button: HTMLButtonElement): void {
@@ -510,12 +562,14 @@ function showCopyFeedback(button: HTMLButtonElement): void {
 }
 
 async function copyHtml(button: HTMLButtonElement): Promise<void> {
+  if (!confirmIfHeadingWarning()) return
   const html = assembleHtml(collectState())
   await navigator.clipboard.writeText(html)
   showCopyFeedback(button)
 }
 
 function exportHtml(): void {
+  if (!confirmIfHeadingWarning()) return
   const html = assembleHtml(collectState())
   const blob = new Blob([html], { type: 'text/html' })
   const url = URL.createObjectURL(blob)
@@ -557,6 +611,7 @@ async function importDraft(file: File): Promise<void> {
     const parsed = JSON.parse(await file.text())
     // Merge over defaults so older/newer drafts with missing/extra fields still load.
     applyState({ ...defaultState(), ...parsed })
+    for (const mde of [deIntroMde, enIntroMde, deMainMde, enMainMde]) checkHeadings(mde)
     updatePreview()
     showDraftFeedback('Draft imported.')
   } catch {
@@ -577,6 +632,7 @@ function resetAll(): void {
   if (!confirm('Reset all fields and clear saved data?')) return
   localStorage.removeItem(STORAGE_KEY)
   applyState(defaultState())
+  for (const mde of [deIntroMde, enIntroMde, deMainMde, enMainMde]) checkHeadings(mde)
   updatePreview()
 }
 
@@ -648,6 +704,7 @@ function init(): void {
   renderSiteFooterNote()
 
   applyState(loadState())
+  for (const mde of [deIntroMde, enIntroMde, deMainMde, enMainMde]) checkHeadings(mde)
   updatePreview()
 }
 
