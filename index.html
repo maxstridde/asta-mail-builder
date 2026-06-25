@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AStA Mail Builder</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <h1>AStA Uni Bonn — Newsletter Mail Builder</h1>
+      </header>
+
+      <div class="layout">
+        <div class="panel panel-left">
+          <div class="button-row">
+            <button id="copy-html-top" type="button">Copy HTML</button>
+            <button id="export-html-top" type="button">Export .html</button>
+          </div>
+
+          <details class="section greeting-section">
+            <summary>Greeting</summary>
+
+            <div class="lang-pair">
+              <label class="lang-label">DE</label>
+              <label for="de-greeting-1">Greeting (with name)</label>
+              <input id="de-greeting-1" type="text" value="Hallo [Sympa Name]," />
+              <label for="de-greeting-2">Greeting (fallback, no name)</label>
+              <input id="de-greeting-2" type="text" value="Hallo!" />
+            </div>
+
+            <div class="lang-pair">
+              <label class="lang-label">EN</label>
+              <label for="en-greeting-1">Greeting (with name)</label>
+              <input id="en-greeting-1" type="text" value="Hello [Sympa Name]," />
+              <label for="en-greeting-2">Greeting (fallback, no name)</label>
+              <input id="en-greeting-2" type="text" value="Hello!" />
+            </div>
+          </details>
+
+          <section class="section">
+            <h2>Introduction</h2>
+            <div class="lang-pair">
+              <label class="lang-label">DE</label>
+              <textarea id="de-intro"></textarea>
+            </div>
+            <div class="lang-pair">
+              <label class="lang-label">EN</label>
+              <textarea id="en-intro"></textarea>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>Main Text</h2>
+            <div class="lang-pair">
+              <label class="lang-label">DE</label>
+              <textarea id="de-main"></textarea>
+            </div>
+            <div class="lang-pair">
+              <label class="lang-label">EN</label>
+              <textarea id="en-main"></textarea>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>Table of Contents</h2>
+            <div class="lang-pair">
+              <label class="lang-label">DE</label>
+              <div id="de-toc-list" class="toc-list"></div>
+              <button id="de-toc-add" type="button" class="toc-add">+ Add item</button>
+            </div>
+            <div class="lang-pair">
+              <label class="lang-label">EN</label>
+              <div id="en-toc-list" class="toc-list"></div>
+              <button id="en-toc-add" type="button" class="toc-add">+ Add item</button>
+            </div>
+          </section>
+
+          <div class="button-row">
+            <button id="copy-html-bottom" type="button">Copy HTML</button>
+            <button id="export-html-bottom" type="button">Export .html</button>
+          </div>
+
+          <div class="button-row">
+            <button id="reset-all" type="button" class="danger">Reset / Clear all</button>
+          </div>
+        </div>
+
+        <div class="panel panel-right">
+          <iframe id="preview" title="Email preview"></iframe>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
