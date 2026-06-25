@@ -37,6 +37,16 @@ body {
   font-size: 18px;
 }
 
+/* EasyMDE fullscreen mode uses position:fixed at top:0 with a z-index (9/8)
+   below the fixed .app-header (z-index 10), so the toolbar/editor would slide
+   under the header. Lift the fullscreen elements above the header so the edit
+   options stay visible. */
+.editor-toolbar.fullscreen,
+.CodeMirror-fullscreen,
+.editor-preview-side {
+  z-index: 20;
+}
+
 .layout {
   display: flex;
   gap: 16px;
