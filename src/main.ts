@@ -409,7 +409,13 @@ function updatePreview(): void {
     // it fills the fixed-height sticky container, so leave height to CSS.
     if (MOBILE_QUERY.matches) {
       const doc = previewIframe.contentWindow?.document
-      if (doc) previewIframe.style.height = `${doc.documentElement.scrollHeight}px`
+      if (doc) {
+        // Reset to 0 first: scrollHeight returns max(content, frame), so if the
+        // old frame height is larger than the new content the iframe would never
+        // shrink. Collapsing to 0 forces scrollHeight == true content height.
+        previewIframe.style.height = '0px'
+        previewIframe.style.height = `${doc.documentElement.scrollHeight}px`
+      }
     } else {
       previewIframe.style.height = ''
     }
