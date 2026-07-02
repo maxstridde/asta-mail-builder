@@ -56,5 +56,3 @@ This image is also uploaded as the repo's social preview card (**Settings → Ge
 ## Stack
 
 Vite + TypeScript, [EasyMDE](https://github.com/Ionaru/easy-markdown-editor) for the Markdown editors, and [marked](https://github.com/markedjs/marked) for Markdown → HTML rendering. See `CLAUDE.md` for the full architecture and template-injection details.
-
-Licensed under the [MIT License](LICENSE).
