@@ -628,7 +628,7 @@ async function importDraft(file: File): Promise<void> {
 function renderSiteFooterNote(): void {
   const note = $<HTMLParagraphElement>('site-footer-note')
   const email = `<a href="mailto:${__APP_CONTACT_EMAIL__}">${__APP_CONTACT_EMAIL__}</a>`
-  const repo = `<a href="https://github.com/maxstridde/asta-mail-builder" target="_blank" rel="noopener">github.com/maxstridde/asta-mail-builder</a>`
+  const repo = `<a href="${__APP_REPO_URL__}" target="_blank" rel="noopener">${__APP_REPO_URL__.replace('https://', '')}</a>`
   note.innerHTML =
     `Built in ${__APP_CREATED__} by ${__APP_AUTHOR__} for the AStA Uni Bonn. ` +
     `Source: ${repo}. Questions or feedback? Reach out at ${email}.`

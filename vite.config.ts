@@ -11,5 +11,6 @@ export default defineConfig({
     __APP_CREATED__: JSON.stringify('June 2026'),
     __APP_AUTHOR__: JSON.stringify('Max'),
     __APP_CONTACT_EMAIL__: JSON.stringify('maxstridde@uni-bonn.de'),
+    __APP_REPO_URL__: JSON.stringify('https://github.com/maxstridde/asta-mail-builder'),
   },
 })
