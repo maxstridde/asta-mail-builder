@@ -10,4 +10,3 @@ declare module '*.html?raw' {
 declare const __APP_CREATED__: string
 declare const __APP_AUTHOR__: string
 declare const __APP_CONTACT_EMAIL__: string
-declare const __APP_LICENSE_URL__: string

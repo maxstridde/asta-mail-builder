@@ -627,11 +627,11 @@ async function importDraft(file: File): Promise<void> {
 
 function renderSiteFooterNote(): void {
   const note = $<HTMLParagraphElement>('site-footer-note')
-  const license = `<a href="${__APP_LICENSE_URL__}" target="_blank" rel="noopener">MIT License</a>`
   const email = `<a href="mailto:${__APP_CONTACT_EMAIL__}">${__APP_CONTACT_EMAIL__}</a>`
+  const repo = `<a href="https://github.com/maxstridde/asta-mail-builder" target="_blank" rel="noopener">github.com/maxstridde/asta-mail-builder</a>`
   note.innerHTML =
     `Built in ${__APP_CREATED__} by ${__APP_AUTHOR__} for the AStA Uni Bonn. ` +
-    `Released under the ${license}. Questions or feedback? Reach out at ${email}.`
+    `Source: ${repo}. Questions or feedback? Reach out at ${email}.`
 }
 
 function resetAll(): void {
