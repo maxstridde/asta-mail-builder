@@ -308,6 +308,38 @@ input[type='text'] {
   border-radius: 3px;
 }
 
+/* English toggle — pill-shaped switch matching the Sympa toggle style */
+#toggle-english {
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+}
+
+#toggle-english::before {
+  content: '●';
+  font-size: 9px;
+}
+
+#toggle-english.off {
+  background: #fff;
+  color: #888;
+  border-color: #ccc;
+}
+
+#toggle-english.off::before {
+  content: '○';
+}
+
+#toggle-english.off:hover {
+  background: #f4f4f4;
+  border-color: #aaa;
+  color: #555;
+}
+
 /* Sympa mode toggle — pill-shaped switch with clear on/off states */
 .sympa-toggle {
   display: inline-flex;

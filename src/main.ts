@@ -471,6 +471,7 @@ function setEnglishVisibility(enabled: boolean): void {
     el.style.display = enabled ? '' : 'none'
   })
   toggleEnglishBtn.textContent = enabled ? 'English: On' : 'English: Off'
+  toggleEnglishBtn.classList.toggle('off', !enabled)
 }
 
 function setSympaVisibility(lang: 'de' | 'en', enabled: boolean): void {
