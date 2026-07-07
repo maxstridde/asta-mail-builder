@@ -302,6 +302,30 @@ input[type='text'] {
   border-radius: 3px;
 }
 
+.sympa-toggle {
+  padding: 3px 10px;
+  font-size: 12px;
+  border: 1px solid var(--asta-red);
+  background: var(--asta-red);
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.sympa-toggle:hover {
+  background: #6e1122;
+}
+
+.sympa-toggle.off {
+  background: #fff;
+  color: var(--asta-red);
+}
+
+.sympa-toggle.off:hover {
+  background: #fbeaea;
+}
+
 .draft-feedback {
   margin: 0;
   font-size: 13px;

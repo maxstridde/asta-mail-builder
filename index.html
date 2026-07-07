@@ -98,18 +98,32 @@
 
             <div class="lang-pair">
               <label class="lang-label">DE — Greeting</label>
-              <label for="de-greeting-1">Greeting (with name)</label>
-              <input id="de-greeting-1" type="text" value="Hallo [Sympa Name]," />
-              <label for="de-greeting-2">Greeting (fallback, no name)</label>
-              <input id="de-greeting-2" type="text" value="Hallo!" />
+              <button id="toggle-sympa-de" type="button" class="sympa-toggle">Sympa: On</button>
+              <div id="sympa-fields-de">
+                <label for="de-greeting-1">Greeting (with name)</label>
+                <input id="de-greeting-1" type="text" value="Hallo [Sympa Name]," />
+                <label for="de-greeting-2">Greeting (fallback, no name)</label>
+                <input id="de-greeting-2" type="text" value="Hallo!" />
+              </div>
+              <div id="simple-fields-de" hidden>
+                <label for="de-greeting-simple">Greeting text</label>
+                <input id="de-greeting-simple" type="text" value="Hello!" />
+              </div>
             </div>
 
             <div class="lang-pair english-only">
               <label class="lang-label">EN — Greeting</label>
-              <label for="en-greeting-1">Greeting (with name)</label>
-              <input id="en-greeting-1" type="text" value="Hello [Sympa Name]," />
-              <label for="en-greeting-2">Greeting (fallback, no name)</label>
-              <input id="en-greeting-2" type="text" value="Hello!" />
+              <button id="toggle-sympa-en" type="button" class="sympa-toggle">Sympa: On</button>
+              <div id="sympa-fields-en">
+                <label for="en-greeting-1">Greeting (with name)</label>
+                <input id="en-greeting-1" type="text" value="Hello [Sympa Name]," />
+                <label for="en-greeting-2">Greeting (fallback, no name)</label>
+                <input id="en-greeting-2" type="text" value="Hello!" />
+              </div>
+              <div id="simple-fields-en" hidden>
+                <label for="en-greeting-simple">Greeting text</label>
+                <input id="en-greeting-simple" type="text" value="Hello!" />
+              </div>
             </div>
           </details>
 
