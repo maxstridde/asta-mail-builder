@@ -13,7 +13,7 @@ const TOC_DEFAULT_COUNT = 3
 // name back into this array — see EasyMDE's toolbarBuiltInButtons for the
 // full default order this list is based on.
 const EDITOR_TOOLBAR_OPTIONS = [
-  'bold', 'italic', 'strikethrough', 'heading', '|',
+  'bold', 'italic', 'strikethrough', 'heading-2', 'heading-3', '|',
   'quote', 'unordered-list', 'ordered-list', '|',
   'link', '|',
   'preview', 'side-by-side', 'fullscreen', '|',
@@ -24,10 +24,14 @@ interface PersistedState {
   deTitle: string
   enTitle: string
   englishNotice: string
+  sympaModeDE: boolean
+  sympaModeEN: boolean
   deGreeting1: string
   deGreeting2: string
+  deGreetingSimple: string
   enGreeting1: string
   enGreeting2: string
+  enGreetingSimple: string
   deIntro: string
   enIntro: string
   deTocTitle: string
@@ -57,10 +61,14 @@ function defaultState(): PersistedState {
     deTitle: 'Neuigkeiten vom AStA',
     enTitle: 'News from the AStA',
     englishNotice: 'english version below',
+    sympaModeDE: true,
+    sympaModeEN: true,
     deGreeting1: 'Hallo [Sympa Name],',
     deGreeting2: 'Hallo!',
+    deGreetingSimple: 'Hallo!',
     enGreeting1: 'Hello [Sympa Name],',
     enGreeting2: 'Hello!',
+    enGreetingSimple: 'Hello!',
     deIntro:
       'Mehr Infos findest du auch auf unserer Website [asta-bonn.de](https://asta-bonn.de/de) oder auf unserem Instagram-Account [@asta_bonn](https://www.instagram.com/asta_bonn/).',
     enIntro:
@@ -185,7 +193,9 @@ function assembleHtml(state: PersistedState): string {
     html,
     '<!-- EDIT optional Greeting -->',
     '<!-- EDIT Introduction -->',
-    buildGreeting(state.deGreeting1, state.deGreeting2)
+    state.sympaModeDE
+      ? buildGreeting(state.deGreeting1, state.deGreeting2)
+      : `<p>${escapeHtml(state.deGreetingSimple)}</p>`
   )
   html = replaceSection(
     html,
@@ -215,7 +225,9 @@ function assembleHtml(state: PersistedState): string {
       html,
       '<!-- EDIT optional Greeting English  -->',
       '<!-- EDIT Introduction  -->',
-      buildGreeting(state.enGreeting1, state.enGreeting2)
+      state.sympaModeEN
+        ? buildGreeting(state.enGreeting1, state.enGreeting2)
+        : `<p>${escapeHtml(state.enGreetingSimple)}</p>`
     )
     html = replaceSection(
       html,
@@ -244,11 +256,15 @@ function assembleHtml(state: PersistedState): string {
   html = replaceSection(html, '<!-- EDIT FooterEmailText -->', '<!-- FooterEmailText End -->', escapeHtml(state.footerEmailText))
   html = replaceSection(html, '<!-- EDIT FooterMailinglistText -->', '<!-- FooterMailinglistText End -->', escapeHtml(state.footerMailinglistText))
   html = replaceSection(html, '<!-- EDIT FooterUnsubscribeText -->', '<!-- FooterUnsubscribeText End -->', escapeHtml(state.footerUnsubscribeText))
-  html = replaceSection(html, '<!-- EDIT FooterUnsubscribeLinkText -->', '<!-- FooterUnsubscribeLinkText End -->', escapeHtml(state.footerUnsubscribeLinkText))
+
+  // Render the unsubscribe link only when the link text is non-empty; otherwise output nothing.
+  const unsubscribeLinkHtml = state.footerUnsubscribeLinkText.trim()
+    ? `<a href="${escapeHtml(state.footerUnsubscribeLinkHref)}" class="footer-link" style="color:#cccccc; text-decoration:underline;">${escapeHtml(state.footerUnsubscribeLinkText)}</a>`
+    : ''
+  html = replaceSection(html, '<!-- EDIT FooterUnsubscribeLink -->', '<!-- FooterUnsubscribeLink End -->', unsubscribeLinkHtml)
 
   html = replaceToken(html, '{{FOOTER_EMAIL_HREF}}', state.footerEmailHref)
   html = replaceToken(html, '{{FOOTER_MAILINGLIST_HREF}}', state.footerMailinglistHref)
-  html = replaceToken(html, '{{FOOTER_UNSUBSCRIBE_HREF}}', state.footerUnsubscribeLinkHref)
 
   return html
 }
@@ -273,8 +289,16 @@ const englishNoticeInput = $<HTMLInputElement>('english-notice')
 
 const deGreeting1Input = $<HTMLInputElement>('de-greeting-1')
 const deGreeting2Input = $<HTMLInputElement>('de-greeting-2')
+const deGreetingSimpleInput = $<HTMLInputElement>('de-greeting-simple')
 const enGreeting1Input = $<HTMLInputElement>('en-greeting-1')
 const enGreeting2Input = $<HTMLInputElement>('en-greeting-2')
+const enGreetingSimpleInput = $<HTMLInputElement>('en-greeting-simple')
+const toggleSympaDEBtn = $<HTMLButtonElement>('toggle-sympa-de')
+const toggleSympaENBtn = $<HTMLButtonElement>('toggle-sympa-en')
+const sympaFieldsDE = $<HTMLDivElement>('sympa-fields-de')
+const simpleFieldsDE = $<HTMLDivElement>('simple-fields-de')
+const sympaFieldsEN = $<HTMLDivElement>('sympa-fields-en')
+const simpleFieldsEN = $<HTMLDivElement>('simple-fields-en')
 
 const deTocTitleInput = $<HTMLInputElement>('de-toc-title')
 const enTocTitleInput = $<HTMLInputElement>('en-toc-title')
@@ -307,6 +331,8 @@ let deMainMde: EasyMDE
 let enMainMde: EasyMDE
 
 let englishEnabled = true
+let sympaModeDE = true
+let sympaModeEN = true
 
 function createTocRow(list: HTMLDivElement, value: string): HTMLDivElement {
   const row = document.createElement('div')
@@ -349,10 +375,14 @@ function collectState(): PersistedState {
     deTitle: deTitleInput.value,
     enTitle: enTitleInput.value,
     englishNotice: englishNoticeInput.value,
+    sympaModeDE,
+    sympaModeEN,
     deGreeting1: deGreeting1Input.value,
     deGreeting2: deGreeting2Input.value,
+    deGreetingSimple: deGreetingSimpleInput.value,
     enGreeting1: enGreeting1Input.value,
     enGreeting2: enGreeting2Input.value,
+    enGreetingSimple: enGreetingSimpleInput.value,
     deIntro: deIntroMde.value(),
     enIntro: enIntroMde.value(),
     deTocTitle: deTocTitleInput.value,
@@ -445,6 +475,21 @@ function setEnglishVisibility(enabled: boolean): void {
     el.style.display = enabled ? '' : 'none'
   })
   toggleEnglishBtn.textContent = enabled ? 'English: On' : 'English: Off'
+  toggleEnglishBtn.classList.toggle('off', !enabled)
+}
+
+function setSympaVisibility(lang: 'de' | 'en', enabled: boolean): void {
+  if (lang === 'de') {
+    sympaFieldsDE.hidden = !enabled
+    simpleFieldsDE.hidden = enabled
+    toggleSympaDEBtn.textContent = enabled ? 'Sympa: On' : 'Sympa: Off'
+    toggleSympaDEBtn.classList.toggle('off', !enabled)
+  } else {
+    sympaFieldsEN.hidden = !enabled
+    simpleFieldsEN.hidden = enabled
+    toggleSympaENBtn.textContent = enabled ? 'Sympa: On' : 'Sympa: Off'
+    toggleSympaENBtn.classList.toggle('off', !enabled)
+  }
 }
 
 function applyState(state: PersistedState): void {
@@ -454,8 +499,15 @@ function applyState(state: PersistedState): void {
 
   deGreeting1Input.value = state.deGreeting1
   deGreeting2Input.value = state.deGreeting2
+  deGreetingSimpleInput.value = state.deGreetingSimple
   enGreeting1Input.value = state.enGreeting1
   enGreeting2Input.value = state.enGreeting2
+  enGreetingSimpleInput.value = state.enGreetingSimple
+
+  sympaModeDE = state.sympaModeDE
+  sympaModeEN = state.sympaModeEN
+  setSympaVisibility('de', sympaModeDE)
+  setSympaVisibility('en', sympaModeEN)
 
   deIntroMde.value(state.deIntro)
   enIntroMde.value(state.enIntro)
@@ -658,7 +710,8 @@ function init(): void {
 
   const plainTextInputs = [
     deTitleInput, enTitleInput, englishNoticeInput,
-    deGreeting1Input, deGreeting2Input, enGreeting1Input, enGreeting2Input,
+    deGreeting1Input, deGreeting2Input, deGreetingSimpleInput,
+    enGreeting1Input, enGreeting2Input, enGreetingSimpleInput,
     deTocTitleInput, enTocTitleInput,
     deFinalGreeting1Input, deFinalGreeting2Input, enFinalGreeting1Input, enFinalGreeting2Input,
     footerAddressInput, footerEmailTextInput, footerEmailHrefInput,
@@ -681,6 +734,17 @@ function init(): void {
   toggleEnglishBtn.addEventListener('click', () => {
     englishEnabled = !englishEnabled
     setEnglishVisibility(englishEnabled)
+    scheduleUpdate()
+  })
+
+  toggleSympaDEBtn.addEventListener('click', () => {
+    sympaModeDE = !sympaModeDE
+    setSympaVisibility('de', sympaModeDE)
+    scheduleUpdate()
+  })
+  toggleSympaENBtn.addEventListener('click', () => {
+    sympaModeEN = !sympaModeEN
+    setSympaVisibility('en', sympaModeEN)
     scheduleUpdate()
   })
 
