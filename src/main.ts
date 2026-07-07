@@ -256,11 +256,15 @@ function assembleHtml(state: PersistedState): string {
   html = replaceSection(html, '<!-- EDIT FooterEmailText -->', '<!-- FooterEmailText End -->', escapeHtml(state.footerEmailText))
   html = replaceSection(html, '<!-- EDIT FooterMailinglistText -->', '<!-- FooterMailinglistText End -->', escapeHtml(state.footerMailinglistText))
   html = replaceSection(html, '<!-- EDIT FooterUnsubscribeText -->', '<!-- FooterUnsubscribeText End -->', escapeHtml(state.footerUnsubscribeText))
-  html = replaceSection(html, '<!-- EDIT FooterUnsubscribeLinkText -->', '<!-- FooterUnsubscribeLinkText End -->', escapeHtml(state.footerUnsubscribeLinkText))
+
+  // Render the unsubscribe link only when the link text is non-empty; otherwise output nothing.
+  const unsubscribeLinkHtml = state.footerUnsubscribeLinkText.trim()
+    ? `<a href="${escapeHtml(state.footerUnsubscribeLinkHref)}" class="footer-link" style="color:#cccccc; text-decoration:underline;">${escapeHtml(state.footerUnsubscribeLinkText)}</a>`
+    : ''
+  html = replaceSection(html, '<!-- EDIT FooterUnsubscribeLink -->', '<!-- FooterUnsubscribeLink End -->', unsubscribeLinkHtml)
 
   html = replaceToken(html, '{{FOOTER_EMAIL_HREF}}', state.footerEmailHref)
   html = replaceToken(html, '{{FOOTER_MAILINGLIST_HREF}}', state.footerMailinglistHref)
-  html = replaceToken(html, '{{FOOTER_UNSUBSCRIBE_HREF}}', state.footerUnsubscribeLinkHref)
 
   return html
 }
