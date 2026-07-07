@@ -255,6 +255,12 @@ input[type='text'] {
   }
 }
 
+/* Links in the EasyMDE CodeMirror editor — default is grey, override to blue */
+.CodeMirror .cm-link,
+.CodeMirror .cm-url {
+  color: #1565c0;
+}
+
 .CodeMirror.heading-warning {
   outline: 2px solid #e6b800;
 }
@@ -302,28 +308,61 @@ input[type='text'] {
   border-radius: 3px;
 }
 
+/* Sympa mode toggle — pill-shaped switch with clear on/off states */
 .sympa-toggle {
-  padding: 3px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
   font-size: 12px;
-  border: 1px solid var(--asta-red);
+  font-weight: bold;
+  border: 2px solid var(--asta-red);
   background: var(--asta-red);
   color: #fff;
-  border-radius: 4px;
+  border-radius: 20px;
   cursor: pointer;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+.sympa-toggle::before {
+  content: '●';
+  font-size: 9px;
 }
 
 .sympa-toggle:hover {
   background: #6e1122;
+  border-color: #6e1122;
 }
 
 .sympa-toggle.off {
   background: #fff;
-  color: var(--asta-red);
+  color: #888;
+  border-color: #ccc;
+}
+
+.sympa-toggle.off::before {
+  content: '○';
 }
 
 .sympa-toggle.off:hover {
-  background: #fbeaea;
+  background: #f4f4f4;
+  border-color: #aaa;
+  color: #555;
+}
+
+/* Small hint below the [Sympa Name] input field */
+.sympa-hint {
+  margin: 3px 0 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.sympa-hint code {
+  background: #eee;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 11px;
 }
 
 .draft-feedback {

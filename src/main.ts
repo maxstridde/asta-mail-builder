@@ -13,7 +13,7 @@ const TOC_DEFAULT_COUNT = 3
 // name back into this array — see EasyMDE's toolbarBuiltInButtons for the
 // full default order this list is based on.
 const EDITOR_TOOLBAR_OPTIONS = [
-  'bold', 'italic', 'strikethrough', 'heading', '|',
+  'bold', 'italic', 'strikethrough', 'heading-2', 'heading-3', '|',
   'quote', 'unordered-list', 'ordered-list', '|',
   'link', '|',
   'preview', 'side-by-side', 'fullscreen', '|',
@@ -65,7 +65,7 @@ function defaultState(): PersistedState {
     sympaModeEN: true,
     deGreeting1: 'Hallo [Sympa Name],',
     deGreeting2: 'Hallo!',
-    deGreetingSimple: 'Hello!',
+    deGreetingSimple: 'Hallo!',
     enGreeting1: 'Hello [Sympa Name],',
     enGreeting2: 'Hello!',
     enGreetingSimple: 'Hello!',
